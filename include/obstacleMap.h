@@ -11,7 +11,7 @@
 #include "sensor_msgs/PointCloud.h"
 #include <pathplan_msgs/VoxelMap.h>
 
-namespace casadiOptim {
+namespace optim {
     class obstacleMap {
     public:
         obstacleMap();

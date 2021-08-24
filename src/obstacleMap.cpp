@@ -3,7 +3,7 @@
 //
 
 #include "obstacleMap.h"
-namespace casadiOptim {
+namespace optim {
     obstacleMap::obstacleMap() {
         cmap_ = std::make_shared<circular_map::CircularMap>();
         cmap_->initializeMap(6, 6, 0.3, 2.0,

@@ -157,12 +157,12 @@ namespace casadiOptim {
 
         casadi::Dict callopt;
         callopt["enable_fd"] = true;
-        MyCallback callback("f", obstacle_map_, time_, dimension_, Q, callopt);
+        // MyCallback callback("f", obstacle_map_, time_, dimension_, Q, callopt);
 
         // casadi::MX smooth_cost = mtimes(mtimes(x.T(), Q), x) + callback(x).at(0);
-        casadi::MX smooth_cost = callback(x).at(0);
+        // casadi::MX smooth_cost = callback(x).at(0);
 
-        casadi::MX f = smooth_cost;
+        casadi::MX f = 4;
         casadi::MX g = mtimes(A, x);
         casadi::MXDict nlp;
         nlp["x"] = x;
@@ -197,69 +197,6 @@ namespace casadiOptim {
                    {"lbg",lower_bound_}});
         return optimal_solution;
     }
-
-    std::vector<Eigen::Vector3f> casadiOptim::getSegmentCost(const casadi::DM& optimal_x) {
-        std::vector<std::vector<float>> coef(segment_, std::vector<float>(order_ + 1));
-        float truncate_distance = 1.97; // pow((0.5 / 0.3), 2);
-        std::vector<std::vector<std::vector<float>>> three_coef(3, coef);
-
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < segment_; ++j) {
-                for (int k = 0; k <= order_; ++k) {
-                    three_coef[i][j][k] = optimal_x(i * dimension_ + j * (order_ + 1) + k).scalar();
-                }
-            }
-        }
-
-
-        float eta = 12.2;
-        int time_num = 8;
-        /////////////////////
-        std::vector<Eigen::Vector3f> pose;
-        std::vector<double> f;
-        f.reserve(x.size1());
-        std::vector<Eigen::Vector3f> grad;
-        grad.reserve(x.size1());
-        /////////////////////
-
-
-
-
-
-        for (int i = 0; i < segment_; ++i) {
-            for (int k = 0; k < time_num; ++k) {
-                double delta_time = (time_[i + 1] - time_[i]) / time_num;
-                std::vector<float> pos(3), vel(3);
-                for (int dim = 0; dim < 3; ++dim) {
-                    const std::vector<float>& coef_one_dim = three_coef[dim][i];
-                    for (int j = 0; j <= order_; ++j) {
-                        pos[dim] += (coef_one_dim[j]) * powInt(time_[i] + delta_time * k, j);
-                        // if (j > 0) {
-                        //     vel[dim] += (coef_one_dim[j]) * j * casadiOptim::powInt(time_[i] + delta_time * k, j - 1);
-                        // }
-                    }
-                }
-
-                circular_map::MapPoint3f point(pos[0], pos[1], pos[2]);
-                pose.push_back(point);
-                float distance;
-                Eigen::Vector3f point_grad;
-                obstacle_map_->getDistanceAndGrad(point, distance, point_grad);
-                if (distance >= truncate_distance) {
-                    f.emplace_back(0);
-                    grad.emplace_back(Eigen::Vector3f(0, 0, 0));
-                } else {
-                    float temp_f = eta * pow((distance - truncate_distance), 2);
-                    f.emplace_back(temp_f);
-                    grad.emplace_back(point_grad);
-                    // printf("f is: %.2f \n", temp_f);
-                }
-            }
-        }
-
-        return pose;
-    }
-
 
 
 } // namespace casadiOptim

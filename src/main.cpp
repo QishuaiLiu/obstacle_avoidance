@@ -93,24 +93,15 @@ int main(int argc, char** argv) {
 
     casadiOptim::casadiOptim casadiInstance(segment, order, derivative, times);
 
-    std::shared_ptr<casadiOptim::obstacleMap> obstacleMap = std::make_shared<casadiOptim::obstacleMap>();
+    std::shared_ptr<optim::obstacleMap> obstacleMap = std::make_shared<optim::obstacleMap>();
     obstacleMap->insertPointCloud();
     sensor_msgs::PointCloud occupied_cloud, free_cloud;
     obstacleMap->getPointCloud(occupied_cloud, free_cloud);
 
     pathplan_msgs::VoxelMap map = obstacleMap->visualizeMap(0.6);
     map.header.frame_id = "world";
-    casadiInstance.setMap(obstacleMap);
 
-    casadiInstance.setInitialBoundaryCondition(initial_point_pos, initial_point_vel, initial_point_acc);
-    casadiInstance.setFinalBoundaryCondition(final_point_pos, final_point_vel, final_point_acc);
-    casadiInstance.setVelocityConstraints(velocity_constraint);
-    auto res = casadiInstance.solve();
-    DM three_optimal_solution = {res["x"]};
-    std::vector<DM> optimal_solution(3);
-    for (int i = 0; i < 3; ++i) {
-        optimal_solution[i] = three_optimal_solution(Slice(i * dimension, (i + 1) * dimension));
-    }
+
 
     ros::init(argc, argv, "casadi_test");
     ros::NodeHandle nh;
@@ -130,10 +121,10 @@ int main(int argc, char** argv) {
         // std::cout << "test" << std::endl;
         occupied_pub.publish(occupied_cloud);
         voxel_map_pub.publish(map);
-        getOptimizedPath(order, times, optimal_solution);
+        // getOptimizedPath(order, times, optimal_solution);
         std::cout << "begin get check path" << std::endl;
-        auto pose = casadiInstance.getSegmentCost(three_optimal_solution);
-        getObstacleCheckPath(pose);
+        // auto pose = casadiInstance.getSegmentCost(three_optimal_solution);
+        // getObstacleCheckPath(pose);
         ros::spinOnce();
     }
 
