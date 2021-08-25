@@ -5,6 +5,7 @@
 #include "nav_msgs/Path.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "tf/transform_datatypes.h"
+#include "polynomialOptim.h"
 
 using namespace casadi;
 
@@ -90,7 +91,10 @@ int main(int argc, char** argv) {
 
 
 
-    // casadiOptim::casadiOptim casadiInstance(segment, order, derivative, times);
+    optim::polynomialOptim polynomial_instance(segment, order, derivative, times);
+    polynomial_instance.setInitialBoundaryCondition(initial_point_pos, initial_point_vel, initial_point_acc);
+    polynomial_instance.setFinalBoundaryCondition(final_point_pos, final_point_vel, final_point_acc);
+    polynomial_instance.setVelocityConstraints(velocity_constraint);
 
     std::shared_ptr<optim::obstacleMap> obstacleMap = std::make_shared<optim::obstacleMap>();
     obstacleMap->insertPointCloud();
@@ -102,16 +106,16 @@ int main(int argc, char** argv) {
 
 
 
-    ros::init(argc, argv, "casadi_test");
+    ros::init(argc, argv, "optim_test");
     ros::NodeHandle nh;
-    optimized_path_pub = nh.advertise<nav_msgs::Path>("/casadi_test/optimizedPath", 5, false);
+    optimized_path_pub = nh.advertise<nav_msgs::Path>("/optim_test/optimizedPath", 5, false);
     occupied_pub =
             nh.advertise<sensor_msgs::PointCloud>("/circular_map/occupied", 1, false);
     // getOptimizedPath(order, times, optimal_solution);
     distance_pub =
         nh.advertise<sensor_msgs::PointCloud>("/circular_map/distance", 1, false);
     voxel_map_pub = nh.advertise<pathplan_msgs::VoxelMap>("/circular_map/voxel_map", 1);
-    obstacle_point_path_pub = nh.advertise<nav_msgs::Path>("/casadi_test/obstacle_check_path", 5, false);
+    obstacle_point_path_pub = nh.advertise<nav_msgs::Path>("/optim_test/obstacle_check_path", 5, false);
 
 
 
