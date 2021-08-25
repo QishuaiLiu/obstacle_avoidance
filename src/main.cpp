@@ -1,6 +1,5 @@
 #include <iostream>
 #include <casadi/casadi.hpp>
-#include "casadiOptim.h"
 #include "obstacleMap.h"
 #include "ros/ros.h"
 #include "nav_msgs/Path.h"
@@ -16,9 +15,9 @@ geometry_msgs::PoseStamped getPoint(int segment, int order, double time,
     int start_index = segment * (order + 1);
     for (int j = 0; j <= order; ++j) {
 
-        pt.pose.position.x += static_cast<double>(optimal_solution[0](start_index + j)) * casadiOptim::powInt(time, j);
-        pt.pose.position.y += static_cast<double>(optimal_solution[1](start_index + j)) * casadiOptim::powInt(time, j);
-        pt.pose.position.z += static_cast<double>(optimal_solution[2](start_index + j)) * casadiOptim::powInt(time, j);
+        // pt.pose.position.x += static_cast<double>(optimal_solution[0](start_index + j)) * casadiOptim::powInt(time, j);
+        // pt.pose.position.y += static_cast<double>(optimal_solution[1](start_index + j)) * casadiOptim::powInt(time, j);
+        // pt.pose.position.z += static_cast<double>(optimal_solution[2](start_index + j)) * casadiOptim::powInt(time, j);
         pt.pose.orientation = tf::createQuaternionMsgFromYaw(0);
     }
     // printf("time: %f, x: %.2f, y: %.2f, z: %.2f\n", time, pt.pose.position.x,
@@ -91,7 +90,7 @@ int main(int argc, char** argv) {
 
 
 
-    casadiOptim::casadiOptim casadiInstance(segment, order, derivative, times);
+    // casadiOptim::casadiOptim casadiInstance(segment, order, derivative, times);
 
     std::shared_ptr<optim::obstacleMap> obstacleMap = std::make_shared<optim::obstacleMap>();
     obstacleMap->insertPointCloud();

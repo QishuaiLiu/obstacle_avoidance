@@ -22,6 +22,6 @@ find_package(Eigen3 REQUIRED)
 include_directories( ${EIGEN3_INCLUDE_DIR} )
 
 
-add_executable(${PROJECT_NAME} src/main.cpp src/casadiOptim.cpp src/obstacleMap.cpp)
-target_link_libraries(${PROJECT_NAME} casadi ${catkin_LIBRARIES}
+add_executable(${PROJECT_NAME} src/main.cpp src/obstacleMap.cpp)
+target_link_libraries(${PROJECT_NAME} nlopt ${catkin_LIBRARIES}
 )
