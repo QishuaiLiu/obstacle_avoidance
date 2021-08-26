@@ -13,6 +13,7 @@ namespace optim {
 
     class polynomialOptim {
     public:
+        // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         polynomialOptim(int segment, int order, int derivative, std::vector<double> times);
         void setInitialBoundaryCondition(Eigen::Vector3d& initial_pose,
                                          Eigen::Vector3d& initial_velocity,
@@ -34,6 +35,10 @@ namespace optim {
         double totalConstraint(const std::vector<double>&x, std::vector<double>& grad);
 
         void setQuadraticCoeff();
+
+        Eigen::Vector3d evaluate(double t, const std::vector<double> &x, int derivative);
+
+        void computeObjMatrix();
 
 
     private:
@@ -58,6 +63,7 @@ namespace optim {
 
         Eigen::MatrixXd coeff_;
         std::vector<Eigen::MatrixXd> quadratic_coefficients_;
+        std::vector<Eigen::MatrixXd> smooth_objective_matrix_;
 
     };
 
