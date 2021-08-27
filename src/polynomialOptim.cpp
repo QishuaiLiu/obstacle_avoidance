@@ -38,11 +38,11 @@ namespace optim {
     }
 
     void polynomialOptim::setOptimizer() {
-        optimizer = std::make_shared<nlopt::opt>(nlopt::LD_MMA, 3 * dimension_);
+        optimizer_ = std::make_shared<nlopt::opt>(nlopt::LD_MMA, 3 * dimension_);
         std::vector<double> lb(3 * dimension_, -1e8);
-        optimizer->set_lower_bounds(lb);
-        optimizer->set_min_objective(costWarp, this);
-        optimizer->set_xtol_rel(1e-4);
+        optimizer_->set_lower_bounds(lb);
+        optimizer_->set_min_objective(costWarp, this);
+        optimizer_->set_xtol_rel(1e-4);
 
     }
 

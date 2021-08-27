@@ -47,7 +47,7 @@ namespace optim {
         const int derivative_;
         int dimension_;
         std::vector<double> time_;
-        std::shared_ptr<nlopt::opt> optimizer;
+        std::shared_ptr<nlopt::opt> optimizer_;
 
 
         std::vector<double> lower_bound_, upper_bound_;
