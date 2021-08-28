@@ -149,4 +149,8 @@ namespace optim {
         }
     }
 
+    void polynomialOptim::totalEqualConstraint(const double* x, double* result, double* grad) {
+
+    }
+
 }

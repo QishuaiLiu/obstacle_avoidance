@@ -27,12 +27,12 @@ namespace optim {
         static double costWarp(const std::vector<double>&x, std::vector<double>& grad, void *data) {
             return reinterpret_cast<polynomialOptim*>(data)->smooth_objective(x, grad);
         };
-        static double constraintWarp(const std::vector<double>&x, std::vector<double>& grad, void *data) {
-          return reinterpret_cast<polynomialOptim*>(data)->totalConstraint(x, grad);
+        void equalConstraintWarp(unsigned m, double *result, unsigned n, const double* x, double* grad, void* data) {
+            reinterpret_cast<polynomialOptim*>(data)->totalEqualConstraint(x, result, grad);
         };
         double smooth_objective(const std::vector<double>&x, std::vector<double>& grad);
 
-        double totalConstraint(const std::vector<double>&x, std::vector<double>& grad);
+        void totalEqualConstraint(const double* x, double* result, double* grad);
 
         void setQuadraticCoeff();
 
