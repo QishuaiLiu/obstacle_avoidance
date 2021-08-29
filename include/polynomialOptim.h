@@ -38,6 +38,8 @@ namespace optim {
 
         Eigen::Vector3d evaluate(double t, const std::vector<double> &x, int derivative);
 
+        void getCoeffWithTime(Eigen::VectorXd& coeff_with_time, int derivative, double t);
+
         void computeObjMatrix();
 
 

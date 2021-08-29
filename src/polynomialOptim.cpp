@@ -149,7 +149,29 @@ namespace optim {
         }
     }
 
+
+
     void polynomialOptim::totalEqualConstraint(const double* x, double* result, double* grad) {
+        
+    }
+
+    void polynomialOptim::getCoeffWithTime(Eigen::VectorXd& coeff_with_time, int derivative, double t) {
+        int size = coeff_(derivative).col();
+        coeff_with_time = Eigen::VectorXd(size);
+        coeff_with_time.setZero();
+        coeff_with_time[derivative] = coeff_(derivative, derivative);
+
+//        int segment = 0;
+//        while(t > time_[segment]) {
+//            segment++;
+//        }
+//        segment--;
+
+        double ti = t;
+        for (int i = derivative + 1; i < size; ++i) {
+            coeff_with_time[i] = coeff_(derivative, j) * ti;
+            ti *= t;
+        }
 
     }
 
