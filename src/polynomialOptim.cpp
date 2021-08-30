@@ -156,20 +156,20 @@ namespace optim {
     }
 
     void polynomialOptim::getCoeffWithTime(Eigen::VectorXd& coeff_with_time, int derivative, double t) {
-        int size = coeff_(derivative).col();
+        int size = coeff_.cols();
         coeff_with_time = Eigen::VectorXd(size);
         coeff_with_time.setZero();
         coeff_with_time[derivative] = coeff_(derivative, derivative);
 
-//        int segment = 0;
-//        while(t > time_[segment]) {
-//            segment++;
-//        }
-//        segment--;
+       // int segment = 0;
+       // while(t > time_[segment]) {
+       //     segment++;
+       // }
+       // segment--;
 
         double ti = t;
         for (int i = derivative + 1; i < size; ++i) {
-            coeff_with_time[i] = coeff_(derivative, j) * ti;
+            coeff_with_time[i] = coeff_(derivative, i) * ti;
             ti *= t;
         }
 
