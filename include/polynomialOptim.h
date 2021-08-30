@@ -22,17 +22,23 @@ namespace optim {
                                        Eigen::Vector3d& final_velocity,
                                        Eigen::Vector3d& final_accelerate);
         void setVelocityConstraints(const Eigen::Vector3d& velocity_constraints);
-        void setOptimizer();
+
+        void optimize();
+
+        void totalEqualConstraint(double *result, const double* x, double* grad);
+
+
+
     private:
         static double costWarp(const std::vector<double>&x, std::vector<double>& grad, void *data) {
             return reinterpret_cast<polynomialOptim*>(data)->smooth_objective(x, grad);
         };
-        void equalConstraintWarp(unsigned m, double *result, unsigned n, const double* x, double* grad, void* data) {
-            reinterpret_cast<polynomialOptim*>(data)->totalEqualConstraint(x, result, grad);
-        };
-        double smooth_objective(const std::vector<double>&x, std::vector<double>& grad);
 
-        void totalEqualConstraint(const double* x, double* result, double* grad);
+        static void equalConstraintWarp(unsigned m, double *result, unsigned n, const double* x, double* grad, void* data) {
+            reinterpret_cast<polynomialOptim*>(data)->totalEqualConstraint(result, x, grad);
+        };
+
+        double smooth_objective(const std::vector<double>&x, std::vector<double>& grad);
 
         void setQuadraticCoeff();
 
@@ -42,6 +48,7 @@ namespace optim {
 
         void computeObjMatrix();
 
+        void setOptimizer();
 
     private:
         const int order_;

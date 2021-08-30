@@ -6,6 +6,7 @@
 #include <iostream>
 
 namespace optim {
+
     polynomialOptim::polynomialOptim(int segment, int order, int derivative, std::vector<double> times):
     order_(order), segment_(segment), derivative_(derivative), time_(times) {
         dimension_ = (order + 1) * segment;
@@ -14,6 +15,7 @@ namespace optim {
         smooth_objective_matrix_.resize(segment);
         setQuadraticCoeff();
         computeObjMatrix();
+        setOptimizer();
     }
 
     void polynomialOptim::setInitialBoundaryCondition(Eigen::Vector3d &initial_pose,
@@ -40,10 +42,24 @@ namespace optim {
     void polynomialOptim::setOptimizer() {
         optimizer_ = std::make_shared<nlopt::opt>(nlopt::LD_MMA, 3 * dimension_);
         std::vector<double> lb(3 * dimension_, -1e8);
+        std::vector<double> ub(3 * dimension_, 1e8);
         optimizer_->set_lower_bounds(lb);
+        optimizer_->set_upper_bounds(ub);
         optimizer_->set_min_objective(costWarp, this);
         optimizer_->set_xtol_rel(1e-4);
+        std::vector<double> tol_constraint(6, 1e-6);
+        // optimizer_->add_equality_mconstraint(equalConstraintWarp, this, tol_constraint);
+    }
 
+    void polynomialOptim::optimize() {
+
+        std::vector<double> x(dimension_);
+        for (int i = 0; i < x.size(); ++i) {
+            x[i] = 1.0;
+        }
+        double minf;
+        nlopt::result result = optimizer_->optimize(x, minf);
+        std::cout << "result is: " << result << " minf: " << minf << std::endl;
     }
 
     double polynomialOptim::smooth_objective(const std::vector<double>&x, std::vector<double>& grad) {
@@ -151,8 +167,24 @@ namespace optim {
 
 
 
-    void polynomialOptim::totalEqualConstraint(const double* x, double* result, double* grad) {
-        
+    void polynomialOptim::totalEqualConstraint(double *result, const double* x, double* grad) {
+        Eigen::VectorXd coeff_with_time_first, coeff_with_time_last;
+
+        int dim = 3 * dimension_;
+        for (int i = 0; i < 3; ++i) {
+            getCoeffWithTime(coeff_with_time_first, i, time_[0]);
+            getCoeffWithTime(coeff_with_time_last, i, time_.back());
+            for (int j = 0; j < order_ + 1; ++j) {
+                grad[i * dim + j] = coeff_with_time_first[j];
+                result[i] += coeff_with_time_first[j] * x[j] - 0;
+
+                grad[(3 + i) * dim  + 2 * dimension_ + (segment_ - 1) * (order_ + 1) + j] =
+                        coeff_with_time_last[j];
+                result[3 + i] += coeff_with_time_last[j] * x[2 * dimension_ + (segment_ - 1) * (order_ + 1) + j] - 0;
+            }
+        }
+
+
     }
 
     void polynomialOptim::getCoeffWithTime(Eigen::VectorXd& coeff_with_time, int derivative, double t) {

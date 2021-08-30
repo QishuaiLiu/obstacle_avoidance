@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
     pathplan_msgs::VoxelMap map = obstacleMap->visualizeMap(0.6);
     map.header.frame_id = "world";
 
-
+    polynomial_instance.optimize();
 
     ros::init(argc, argv, "optim_test");
     ros::NodeHandle nh;
