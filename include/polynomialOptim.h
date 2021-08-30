@@ -25,7 +25,7 @@ namespace optim {
 
         void optimize();
 
-        void totalEqualConstraint(double *result, const double* x, double* grad);
+        void totalEqualConstraint(unsigned m, double *result, unsigned n, const double* x, double* grad);
 
 
 
@@ -35,7 +35,7 @@ namespace optim {
         };
 
         static void equalConstraintWarp(unsigned m, double *result, unsigned n, const double* x, double* grad, void* data) {
-            reinterpret_cast<polynomialOptim*>(data)->totalEqualConstraint(result, x, grad);
+            reinterpret_cast<polynomialOptim*>(data)->totalEqualConstraint(m, result, n, x, grad);
         };
 
         double smooth_objective(const std::vector<double>&x, std::vector<double>& grad);

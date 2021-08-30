@@ -40,20 +40,20 @@ namespace optim {
     }
 
     void polynomialOptim::setOptimizer() {
-        optimizer_ = std::make_shared<nlopt::opt>(nlopt::LD_MMA, 3 * dimension_);
+        optimizer_ = std::make_shared<nlopt::opt>(nlopt::LD_SLSQP, 3 * dimension_);
         std::vector<double> lb(3 * dimension_, -1e8);
         std::vector<double> ub(3 * dimension_, 1e8);
         optimizer_->set_lower_bounds(lb);
         optimizer_->set_upper_bounds(ub);
         optimizer_->set_min_objective(costWarp, this);
         optimizer_->set_xtol_rel(1e-4);
-        std::vector<double> tol_constraint(6, 1e-6);
-        // optimizer_->add_equality_mconstraint(equalConstraintWarp, this, tol_constraint);
+        std::vector<double> tol_constraint(5, 1e-4);
+        optimizer_->add_equality_mconstraint(equalConstraintWarp, this, tol_constraint);
     }
 
     void polynomialOptim::optimize() {
 
-        std::vector<double> x(dimension_);
+        std::vector<double> x(3 * dimension_);
         for (int i = 0; i < x.size(); ++i) {
             x[i] = 1.0;
         }
@@ -76,7 +76,7 @@ namespace optim {
                 res += param.transpose() * smooth_objective_matrix_[i] * param;
                 Eigen::VectorXd segment_grad = smooth_objective_matrix_[i] * param;
                 for (int k = 0; k <= order_; ++k) {
-                    grad[i * dimension_ + j * segment_ + k] += segment_grad(k);
+                    grad[i * dimension_ + j * (order_ + 1) + k] += segment_grad(k);
                 }
             }
         }
@@ -167,20 +167,36 @@ namespace optim {
 
 
 
-    void polynomialOptim::totalEqualConstraint(double *result, const double* x, double* grad) {
-        Eigen::VectorXd coeff_with_time_first, coeff_with_time_last;
+    void polynomialOptim::totalEqualConstraint(unsigned m, double *result, unsigned n, const double* x, double* grad) {
+        // Eigen::VectorXd coeff_with_time_first, coeff_with_time_last;
+        //
+        // int dim = 3 * dimension_;
+        // for (int i = 0; i < 3; ++i) {
+            // getCoeffWithTime(coeff_with_time_first, i, time_[0]);
+            // getCoeffWithTime(coeff_with_time_last, i, time_.back());
+            // for (int j = 0; j < order_ + 1; ++j) {
+            //     grad[i * dim + j] = coeff_with_time_first[j];
+            //     result[i] += coeff_with_time_first[j] * x[j] - 0;
+            //
+            //     grad[(3 + i) * dim  + 2 * dimension_ + (segment_ - 1) * (order_ + 1) + j] =
+            //             coeff_with_time_last[j];
+            //     result[3 + i] += coeff_with_time_last[j] * x[2 * dimension_ + (segment_ - 1) * (order_ + 1) + j] - 0;
+            // }
+        //     for (int j = 0; j < 128; ++j) {
+        //         grad[j  + i] = 2;
+        //         result[j] = 4;
+        //     }
+        // }
 
-        int dim = 3 * dimension_;
-        for (int i = 0; i < 3; ++i) {
-            getCoeffWithTime(coeff_with_time_first, i, time_[0]);
-            getCoeffWithTime(coeff_with_time_last, i, time_.back());
-            for (int j = 0; j < order_ + 1; ++j) {
-                grad[i * dim + j] = coeff_with_time_first[j];
-                result[i] += coeff_with_time_first[j] * x[j] - 0;
+        std::vector<double> vals(n);
+        for (int i = 0; i < n; ++i) {
+            vals[i] = x[i];
+        }
 
-                grad[(3 + i) * dim  + 2 * dimension_ + (segment_ - 1) * (order_ + 1) + j] =
-                        coeff_with_time_last[j];
-                result[3 + i] += coeff_with_time_last[j] * x[2 * dimension_ + (segment_ - 1) * (order_ + 1) + j] - 0;
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                grad[j * n + i] = 1;
+                result[j] += grad[j * n + i] * 0.1;
             }
         }
 
