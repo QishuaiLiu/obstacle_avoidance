@@ -151,7 +151,7 @@ namespace optim {
             }
             return time_segment_exp;
         };
-        time_point_exp_ = time_exp(order_);
+        time_point_exp_ = time_exp(order_ + 1);
         //////////////////////////////////////////////////
 
         for (int i = 0; i < segment_; ++i) {
