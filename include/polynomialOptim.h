@@ -73,6 +73,7 @@ namespace optim {
         Eigen::MatrixXd coeff_;
         std::vector<Eigen::MatrixXd> quadratic_coefficients_;
         std::vector<Eigen::MatrixXd> smooth_objective_matrix_;
+        std::vector<std::vector<double>> time_point_exp_;
 
     };
 

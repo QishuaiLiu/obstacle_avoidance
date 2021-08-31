@@ -151,7 +151,7 @@ namespace optim {
             }
             return time_segment_exp;
         };
-        std::vector<std::vector<double>> time_point_exp = time_exp((order_ - derive) * 2 + 2);  // up to exp (order - derive) * 2 + 1, so need one more pos
+        time_point_exp_ = time_exp(order_);
         //////////////////////////////////////////////////
 
         for (int i = 0; i < segment_; ++i) {
@@ -162,7 +162,7 @@ namespace optim {
                     int exp = (order_ - derive) * 2 + 1 - row - col;
                     smooth_objective_matrix_[i](order_ - row, order_ - col) =
                             quadratic_coefficients_[derive - 1](order_ - row, order_ - col)
-                    * (time_point_exp[i + 1][exp] - time_point_exp[i][exp]);
+                    * (time_point_exp_[i + 1][exp] - time_point_exp_[i][exp]);
                 }
             }
         }
