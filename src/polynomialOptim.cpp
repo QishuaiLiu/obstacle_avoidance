@@ -40,7 +40,7 @@ namespace optim {
     }
 
     void polynomialOptim::setOptimizer() {
-        optimizer_ = std::make_shared<nlopt::opt>(nlopt::LD_SLSQP, 3 * dimension_);
+        optimizer_ = std::make_shared<nlopt::opt>(nlopt::LD_SLSQP, 3 * dimension_); //LD_SLSQP
         std::vector<double> lb(3 * dimension_, -1e8);
         std::vector<double> ub(3 * dimension_, 1e8);
         optimizer_->set_lower_bounds(lb);
@@ -48,7 +48,7 @@ namespace optim {
         optimizer_->set_min_objective(costWarp, this);
         optimizer_->set_xtol_rel(1e-4);
         std::vector<double> tol_constraint(5, 1e-4);
-        optimizer_->add_equality_mconstraint(equalConstraintWarp, this, tol_constraint);
+        // optimizer_->add_equality_mconstraint(equalConstraintWarp, this, tol_constraint);
     }
 
     void polynomialOptim::optimize() {
@@ -66,6 +66,7 @@ namespace optim {
         std::vector<double> smooth_grad(x.size());
 
         double res = 0;
+        static int num = 0;
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < segment_; ++j) {
@@ -73,13 +74,20 @@ namespace optim {
                                                                             x.begin() + i * dimension_ + (j + 1) * (order_ + 1));
                 Eigen::VectorXd param(order_ + 1);
                 param = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(segment_parameter.data(), segment_parameter.size());
-                res += param.transpose() * smooth_objective_matrix_[i] * param;
-                Eigen::VectorXd segment_grad = smooth_objective_matrix_[i] * param;
+                res += param.transpose() * smooth_objective_matrix_[j] * param;
+                Eigen::VectorXd segment_grad = smooth_objective_matrix_[j] * param;
                 for (int k = 0; k <= order_; ++k) {
                     grad[i * dimension_ + j * (order_ + 1) + k] += segment_grad(k);
                 }
             }
         }
+        // for (int i = 0; i < grad.size(); ++i) {
+        //     if (i % 28 == 0)
+        //         std::cout << std::endl;
+        //     std::cout << grad[i] << " ";
+        // }
+        //
+        // std::cout << "time is: " << num++ << " res is: " << res << " size: " <<  grad.size()<< std::endl;
         return res;
 
     }
@@ -143,7 +151,7 @@ namespace optim {
             }
             return time_segment_exp;
         };
-        std::vector<std::vector<double>> time_point_exp = time_exp((order_ - derive) * 2 - 1);
+        std::vector<std::vector<double>> time_point_exp = time_exp((order_ - derive) * 2 + 2);  // up to exp (order - derive) * 2 + 1, so need one more pos
         //////////////////////////////////////////////////
 
         for (int i = 0; i < segment_; ++i) {
@@ -157,11 +165,6 @@ namespace optim {
                     * (time_point_exp[i + 1][exp] - time_point_exp[i][exp]);
                 }
             }
-        }
-
-        for (int i = 0; i < segment_; ++i) {
-            std::cout << smooth_objective_matrix_[i] << std::endl;
-            std::cout << "=========" << std::endl;
         }
     }
 
