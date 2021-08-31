@@ -206,6 +206,10 @@ namespace optim {
 
     }
 
+    void polynomialOptim::computeConstraintMatrix() {
+
+    }
+
     void polynomialOptim::getCoeffWithTime(Eigen::VectorXd& coeff_with_time, int derivative, double t) {
         int size = coeff_.cols();
         coeff_with_time = Eigen::VectorXd(size);

@@ -50,6 +50,8 @@ namespace optim {
 
         void setOptimizer();
 
+        void computeConstraintMatrix();
+
     private:
         const int order_;
         const int segment_;
@@ -73,6 +75,7 @@ namespace optim {
         Eigen::MatrixXd coeff_;
         std::vector<Eigen::MatrixXd> quadratic_coefficients_;
         std::vector<Eigen::MatrixXd> smooth_objective_matrix_;
+        Eigen::MatrixXd constraint_matrix_;
         std::vector<std::vector<double>> time_point_exp_;
 
     };
