@@ -10,10 +10,7 @@ namespace optim {
     polynomialOptim::polynomialOptim(int segment, int order, int derivative, std::vector<double> times):
     order_(order), segment_(segment), derivative_(derivative), time_(times) {
         dimension_ = (order + 1) * segment;
-        coeff_ = Eigen::MatrixXd(order_ + 1, order_ + 1);
-        quadratic_coefficients_ = std::vector<Eigen::MatrixXd>(derivative_);
-        smooth_objective_matrix_.resize(segment);
-        setQuadraticCoeff();
+        // setQuadraticCoeff();
         computeObjMatrix();
         computeConstraintMatrix();
         setOptimizer();
@@ -87,6 +84,7 @@ namespace optim {
         //         std::cout << std::endl;
         //     std::cout << grad[i] << " ";
         // }
+        // std::cout << std::endl;
         //
         // std::cout << "time is: " << num++ << " res is: " << res << " size: " <<  grad.size()<< std::endl;
         return res;
@@ -94,6 +92,7 @@ namespace optim {
     }
 
     void polynomialOptim::setQuadraticCoeff() {
+        coeff_ = Eigen::MatrixXd(order_ + 1, order_ + 1);
         coeff_.setZero();
         coeff_.row(0).setOnes();
         int order = order_;
@@ -104,6 +103,7 @@ namespace optim {
             order--;
         }
 
+        quadratic_coefficients_ = std::vector<Eigen::MatrixXd>(derivative_);
         int degree = order_ + 1;
         for (int derive = 1; derive <= derivative_; ++derive) {
             quadratic_coefficients_[derive - 1] = Eigen::MatrixXd(order_ + 1, order_ + 1);
@@ -137,7 +137,7 @@ namespace optim {
     }
 
     void polynomialOptim::computeObjMatrix() {
-
+        setQuadraticCoeff();
         int degree = order_ + 1;
         int derive = derivative_;
         ///////////////////////////////////////////////////
@@ -154,7 +154,7 @@ namespace optim {
         };
         time_point_exp_ = time_exp(order_ + 1);
         //////////////////////////////////////////////////
-
+        smooth_objective_matrix_.resize(segment_);
         for (int i = 0; i < segment_; ++i) {
             smooth_objective_matrix_[i] = Eigen::MatrixXd(order_ + 1, order_ + 1);
             smooth_objective_matrix_[i].setZero();
@@ -192,12 +192,22 @@ namespace optim {
         //     }
         // }
 
-        std::vector<double> vals(n);
-        for (int i = 0; i < n; ++i) {
-            vals[i] = x[i];
+        Eigen::VectorXd vals(dimension_);
+        for (int i = 0; i < 3; ++i) {
+            for (int k = 0; k < dimension_; ++k) {
+                vals[k] = x[i * dimension_ + k];
+            }
+
+            for (int j = 0; j < 3 * segment_ + 3; ++j) {
+                result[i * dimension_ + j] = constraint_matrix_.row(j) * vals;
+            }
         }
 
+
         for (int i = 0; i < n; ++i) {
+            for (int k = 0; k < dimension_; ++k) {
+                vals[k] = x[i * dimension_ + k];
+            }
             for (int j = 0; j < m; ++j) {
                 grad[j * n + i] = 1;
                 result[j] += grad[j * n + i] * 0.1;
@@ -245,15 +255,6 @@ namespace optim {
                         i * (i - 1) * time_point_exp_[time_.size() - 1][i - 2];
             }
         }
-        for(int i = 0; i < time_point_exp_.size(); ++i) {
-            for (int j = 0; j < time_point_exp_[i].size(); ++j) {
-                std::cout << time_point_exp_[i][j] << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << "========================" << std::endl;
-        std::cout << "test constraint matrix: " << std::endl;
-        std::cout << constraint_matrix_ << std::endl;
 
     }
 
