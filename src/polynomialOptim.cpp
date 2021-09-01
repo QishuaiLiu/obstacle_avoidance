@@ -15,6 +15,7 @@ namespace optim {
         smooth_objective_matrix_.resize(segment);
         setQuadraticCoeff();
         computeObjMatrix();
+        computeConstraintMatrix();
         setOptimizer();
     }
 
@@ -207,6 +208,52 @@ namespace optim {
     }
 
     void polynomialOptim::computeConstraintMatrix() {
+        constraint_matrix_ = Eigen::MatrixXd(3 * segment_ + 3, dimension_);
+        for (int i = 0; i < segment_ - 1; ++i) {
+            for (int j = 0; j <= order_; ++j) {
+                constraint_matrix_(i * 3, i * (order_ + 1) + j) = time_point_exp_[i + 1][j];
+                if (j >= 1) {
+                    constraint_matrix_(i * 3 + 1, i * (order_ + 1) + j) = j * time_point_exp_[i + 1][j - 1];
+                }
+                if (j >= 2) {
+                    constraint_matrix_(i * 3 + 2, i * (order_ + 1) + j) = j * (j - 1) * time_point_exp_[i + 1][j - 2];
+                }
+            }
+
+            for (int j = 0; j <= order_; ++j) {
+                constraint_matrix_(i * 3, (i + 1) * (order_ + 1) + j) = -time_point_exp_[i + 1][j];
+                if (j >= 1) {
+                    constraint_matrix_(i * 3 + 1, (i + 1) * (order_ + 1) + j) = -j * time_point_exp_[i + 1][j - 1];
+                }
+                if (j >= 2) {
+                    constraint_matrix_(i * 3 + 2, (i + 1) * (order_ + 1) + j) = -j * (j - 1) * time_point_exp_[i + 1][j - 2];
+                }
+            }
+        }
+
+        for (int i = 0; i <= order_; ++i) {
+            constraint_matrix_(3 * (segment_ - 1), i) = time_point_exp_[0][i];
+            constraint_matrix_(3 * segment_, (segment_ - 1) * (order_ + 1) + i) = time_point_exp_[time_.size() - 1][i];
+
+            if (i >= 1) {
+                constraint_matrix_(3 * (segment_ - 1) + 1, i) = i * time_point_exp_[0][i - 1];
+                constraint_matrix_(3 * segment_ + 1, (segment_ - 1) * (order_ + 1) + i) = i * time_point_exp_[time_.size() - 1][i - 1];
+            }
+            if (i >= 2) {
+                constraint_matrix_(3 * (segment_ - 1) + 2, i) = i * (i - 1) * time_point_exp_[0][i - 2];
+                constraint_matrix_(3 * segment_ + 2, (segment_ - 1) * (order_ + 1) + i) =
+                        i * (i - 1) * time_point_exp_[time_.size() - 1][i - 2];
+            }
+        }
+        for(int i = 0; i < time_point_exp_.size(); ++i) {
+            for (int j = 0; j < time_point_exp_[i].size(); ++j) {
+                std::cout << time_point_exp_[i][j] << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "========================" << std::endl;
+        std::cout << "test constraint matrix: " << std::endl;
+        std::cout << constraint_matrix_ << std::endl;
 
     }
 
