@@ -199,9 +199,14 @@ namespace optim {
             }
 
             for (int j = 0; j < 3 * segment_ + 3; ++j) {
-                result[i * dimension_ + j] = constraint_matrix_.row(j) * vals;
+                result[i * (3 * segment_ + 3) + j] = constraint_matrix_.row(j) * vals;
+                for (int k = )
             }
+
+
         }
+
+
 
 
         for (int i = 0; i < n; ++i) {
