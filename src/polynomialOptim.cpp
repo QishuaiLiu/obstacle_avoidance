@@ -46,7 +46,6 @@ namespace optim {
         optimizer_->set_min_objective(costWarp, this);
         optimizer_->set_xtol_rel(1e-4);
         std::vector<double> tol_constraint(3 * (3 * segment_ + 3), 1e-4);
-        int xxxx = tol_constraint.size();
         optimizer_->add_equality_mconstraint(equalConstraintWarp, this, tol_constraint);
     }
 
