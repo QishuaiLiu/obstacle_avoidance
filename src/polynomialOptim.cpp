@@ -45,8 +45,9 @@ namespace optim {
         optimizer_->set_upper_bounds(ub);
         optimizer_->set_min_objective(costWarp, this);
         optimizer_->set_xtol_rel(1e-4);
-        std::vector<double> tol_constraint(5, 1e-4);
-        // optimizer_->add_equality_mconstraint(equalConstraintWarp, this, tol_constraint);
+        std::vector<double> tol_constraint(3 * (3 * segment_ + 3), 1e-4);
+        int xxxx = tol_constraint.size();
+        optimizer_->add_equality_mconstraint(equalConstraintWarp, this, tol_constraint);
     }
 
     void polynomialOptim::optimize() {
@@ -79,14 +80,14 @@ namespace optim {
                 }
             }
         }
-        // for (int i = 0; i < grad.size(); ++i) {
-        //     if (i % 28 == 0)
-        //         std::cout << std::endl;
-        //     std::cout << grad[i] << " ";
-        // }
-        // std::cout << std::endl;
-        //
-        // std::cout << "time is: " << num++ << " res is: " << res << " size: " <<  grad.size()<< std::endl;
+        for (int i = 0; i < grad.size(); ++i) {
+            if (i % 28 == 0)
+                std::cout << std::endl;
+            std::cout << grad[i] << " ";
+        }
+        std::cout << std::endl;
+
+        std::cout << "time is: " << num++ << " res is: " << res << " size: " <<  grad.size()<< std::endl;
         return res;
 
     }
@@ -172,53 +173,26 @@ namespace optim {
 
 
     void polynomialOptim::totalEqualConstraint(unsigned m, double *result, unsigned n, const double* x, double* grad) {
-        // Eigen::VectorXd coeff_with_time_first, coeff_with_time_last;
-        //
-        // int dim = 3 * dimension_;
-        // for (int i = 0; i < 3; ++i) {
-            // getCoeffWithTime(coeff_with_time_first, i, time_[0]);
-            // getCoeffWithTime(coeff_with_time_last, i, time_.back());
-            // for (int j = 0; j < order_ + 1; ++j) {
-            //     grad[i * dim + j] = coeff_with_time_first[j];
-            //     result[i] += coeff_with_time_first[j] * x[j] - 0;
-            //
-            //     grad[(3 + i) * dim  + 2 * dimension_ + (segment_ - 1) * (order_ + 1) + j] =
-            //             coeff_with_time_last[j];
-            //     result[3 + i] += coeff_with_time_last[j] * x[2 * dimension_ + (segment_ - 1) * (order_ + 1) + j] - 0;
-            // }
-        //     for (int j = 0; j < 128; ++j) {
-        //         grad[j  + i] = 2;
-        //         result[j] = 4;
-        //     }
-        // }
-
         Eigen::VectorXd vals(dimension_);
         for (int i = 0; i < 3; ++i) {
             for (int k = 0; k < dimension_; ++k) {
                 vals[k] = x[i * dimension_ + k];
             }
-
+            int block = dimension_ * (3 * segment_ + 3);
             for (int j = 0; j < 3 * segment_ + 3; ++j) {
                 result[i * (3 * segment_ + 3) + j] = constraint_matrix_.row(j) * vals;
-                for (int k = )
+                for (int k = 0; k < dimension_; ++k) {
+                    grad[i * block + j * dimension_ + k] = constraint_matrix_(j, k);
+                }
             }
-
-
-        }
-
-
-
-
-        for (int i = 0; i < n; ++i) {
-            for (int k = 0; k < dimension_; ++k) {
-                vals[k] = x[i * dimension_ + k];
-            }
-            for (int j = 0; j < m; ++j) {
-                grad[j * n + i] = 1;
-                result[j] += grad[j * n + i] * 0.1;
+            std::vector<double> constraints = {initial_pose_(i), initial_velocity_(i), initial_accelerate_(i),
+                                               final_pose_(i), final_velocity_(i), final_accelerate_(i)};
+            int end_dimension = 3 * segment_ + 3;
+            for (int j = 0; j < 6; ++j) {
+                result[i * end_dimension - 1 - j] -= constraints[constraints.size() - 1 - j];
             }
         }
-
+        std::cout << "result size: " << m << " constraint grad size: " << n << std::endl;
 
     }
 
