@@ -12,13 +12,13 @@ pre_traj_x(1:3,:)= begin_x.y(1:3,:);
 pre_traj_x(4,:) = -begin_x.y(6,:);
 pre_traj_y(1:3, :) = begin_y.y(1:3, :);
 pre_traj_y(4, :) = -begin_y.y(6, :);
-% figure
-% plot(begin_time_x, pre_traj_x(1,:), 'k-');xlabel('t')
-% hold on
-% plot(begin_time_x, pre_traj_x(2,:)); 
-% hold on
-% plot(begin_time_x, pre_traj_x(3,:)); 
-% plot(begin_time_x, pre_traj_x(4,:));
+figure
+plot(begin_time_x, pre_traj_x(1,:), 'k-');xlabel('t')
+hold on
+plot(begin_time_x, pre_traj_x(2,:)); 
+hold on
+plot(begin_time_x, pre_traj_x(3,:)); 
+plot(begin_time_x, pre_traj_x(4,:));
 
 t_f = 6;
 new_time = 0:0.1:t_f;
