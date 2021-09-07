@@ -53,7 +53,7 @@ namespace optim {
 
         std::vector<double> x(3 * dimension_);
         for (int i = 0; i < x.size(); ++i) {
-            x[i] = 1.0;
+            x[i] = 6.0;
         }
         double minf;
         nlopt::result result = optimizer_->optimize(x, minf);
@@ -177,13 +177,17 @@ namespace optim {
             for (int k = 0; k < dimension_; ++k) {
                 vals[k] = x[i * dimension_ + k];
             }
-            int block = dimension_ * (3 * segment_ + 3);
+            int block = (3 * dimension_) * (3 * segment_ + 3) + dimension_;
             for (int j = 0; j < 3 * segment_ + 3; ++j) {
                 result[i * (3 * segment_ + 3) + j] = constraint_matrix_.row(j) * vals;
                 for (int k = 0; k < dimension_; ++k) {
-                    grad[i * block + j * dimension_ + k] = constraint_matrix_(j, k);
+                    grad[i * block + j * (3 * dimension_) + k] = constraint_matrix_(j, k);
                 }
             }
+
+            //******* ******* *******
+            //*******    ******* *******
+            //******* *******      *******
             std::vector<double> constraints = {initial_pose_(i), initial_velocity_(i), initial_accelerate_(i),
                                                final_pose_(i), final_velocity_(i), final_accelerate_(i)};
             int end_dimension = 3 * segment_ + 3;
@@ -191,6 +195,9 @@ namespace optim {
                 result[i * end_dimension - 1 - j] -= constraints[constraints.size() - 1 - j];
             }
         }
+
+
+
         std::cout << "result size: " << m << " constraint grad size: " << n << std::endl;
 
     }
