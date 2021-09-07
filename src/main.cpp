@@ -8,17 +8,29 @@
 #include "polynomialOptim.h"
 
 using namespace casadi;
+template <typename T>
+T powInt(T x, unsigned int n) {
+    if (n == 0) return T{1};
+    auto y = T{1};
+    while (n > 1) {
+        if (n % 2 == 1) y *= x;
+        x *= x;
+        n /= 2;
+    }
+    return x * y;
+}
 
 ros::Publisher optimized_path_pub, occupied_pub, free_pub, distance_pub, voxel_map_pub, obstacle_point_path_pub;
 geometry_msgs::PoseStamped getPoint(int segment, int order, double time,
-                                    const std::vector<casadi::DM>& optimal_solution) {
+                                    const std::vector<double>& optimal_solution) {
     geometry_msgs::PoseStamped pt;
     int start_index = segment * (order + 1);
+    int dimension = segment * (order + 1);
     for (int j = 0; j <= order; ++j) {
 
-        // pt.pose.position.x += static_cast<double>(optimal_solution[0](start_index + j)) * casadiOptim::powInt(time, j);
-        // pt.pose.position.y += static_cast<double>(optimal_solution[1](start_index + j)) * casadiOptim::powInt(time, j);
-        // pt.pose.position.z += static_cast<double>(optimal_solution[2](start_index + j)) * casadiOptim::powInt(time, j);
+        pt.pose.position.x += static_cast<double>(optimal_solution[0 * dimension + start_index + j]) * powInt(time, j);
+        pt.pose.position.y += static_cast<double>(optimal_solution[1 * dimension + start_index + j]) * powInt(time, j);
+        pt.pose.position.z += static_cast<double>(optimal_solution[2 * dimension + start_index + j]) * powInt(time, j);
         pt.pose.orientation = tf::createQuaternionMsgFromYaw(0);
     }
     // printf("time: %f, x: %.2f, y: %.2f, z: %.2f\n", time, pt.pose.position.x,
@@ -26,7 +38,7 @@ geometry_msgs::PoseStamped getPoint(int segment, int order, double time,
     return pt;
 }
 void getOptimizedPath(int order, const std::vector<double>& times,
-                      const std::vector<casadi::DM>& optimal_solution) {
+                      const std::vector<double>& optimal_solution) {
     nav_msgs::Path optimized_path;
     optimized_path.header.frame_id = "world";
     optimized_path.header.stamp = ros::Time::now();
@@ -116,15 +128,16 @@ int main(int argc, char** argv) {
     voxel_map_pub = nh.advertise<pathplan_msgs::VoxelMap>("/circular_map/voxel_map", 1);
     obstacle_point_path_pub = nh.advertise<nav_msgs::Path>("/optim_test/obstacle_check_path", 5, false);
 
-
+    auto pt = getPoint(4, order, times.back(), optimal_solution);
+    std::cout << pt.pose.position.x << " " << pt.pose.position.y << " " << pt.pose.position.z << std::endl;
 
     ros::Rate rate(10);
     while(ros::ok()) {
         // std::cout << "test" << std::endl;
         occupied_pub.publish(occupied_cloud);
         voxel_map_pub.publish(map);
-        // getOptimizedPath(order, times, optimal_solution);
-        std::cout << "begin get check path" << std::endl;
+        getOptimizedPath(order, times, optimal_solution);
+        // std::cout << "begin get check path" << std::endl;
         // auto pose = casadiInstance.getSegmentCost(three_optimal_solution);
         // getObstacleCheckPath(pose);
         ros::spinOnce();
