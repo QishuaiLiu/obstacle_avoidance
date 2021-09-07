@@ -130,8 +130,8 @@ namespace optim {
             segment_index++;
         }
         segment_index--;
+        int index = segment_index * (order_ + 1);
         for (int i = order_; i >= derivative; --i) {
-            int index = segment_index * (order_ + 1);
             res(0) = res(0) * t + coeff_(derivative, i) * x[0 * dimension_ + index + i];
             res(1) = res(1) * t + coeff_(derivative, i) * x[1 * dimension_ + index + i];
             res(2) = res(2) * t + coeff_(derivative, i) * x[2 * dimension_ + index + i];
