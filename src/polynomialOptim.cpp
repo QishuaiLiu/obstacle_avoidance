@@ -65,6 +65,12 @@ namespace optim {
 
         double res = 0;
         static int num = 0;
+        std::cout << "grad size: " << grad.size() << " before obj gradient: " << std::endl;
+        for (int i = 0; i < grad.size(); ++i) {
+            if (i % (dimension_) == 0)
+                std::cout << std::endl;
+            std::cout << grad[i] << " ";
+        }
 
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < segment_; ++j) {
@@ -74,13 +80,19 @@ namespace optim {
                 param = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(segment_parameter.data(), segment_parameter.size());
                 res += param.transpose() * smooth_objective_matrix_[j] * param;
                 Eigen::VectorXd segment_grad = smooth_objective_matrix_[j] * param;
-                for (int k = 0; k <= order_; ++k) {
-                    grad[i * dimension_ + j * (order_ + 1) + k] += segment_grad(k);
+                if (!grad.empty()) {
+                    for (int k = 0; k <= order_; ++k) {
+                        grad[i * dimension_ + j * (order_ + 1) + k] = segment_grad(k);
+                    }
                 }
             }
         }
+
+
+        std::cout << "after gradient is: " << std::endl;
+        std::cout << "===============================================" << std::endl;
         for (int i = 0; i < grad.size(); ++i) {
-            if (i % 28 == 0)
+            if (i % (dimension_) == 0)
                 std::cout << std::endl;
             std::cout << grad[i] << " ";
         }
@@ -180,8 +192,10 @@ namespace optim {
             int block = (3 * dimension_) * (3 * segment_ + 3) + dimension_;
             for (int j = 0; j < 3 * segment_ + 3; ++j) {
                 result[i * (3 * segment_ + 3) + j] = constraint_matrix_.row(j) * vals;
-                for (int k = 0; k < dimension_; ++k) {
-                    grad[i * block + j * (3 * dimension_) + k] = constraint_matrix_(j, k);
+                if (grad) {
+                    for (int k = 0; k < dimension_; ++k) {
+                        grad[i * block + j * (3 * dimension_) + k] = constraint_matrix_(j, k);
+                    }
                 }
             }
 
