@@ -90,11 +90,10 @@ int main(int argc, char** argv) {
     velocity_constraint << 1.2, 1.2, 1.2;
 
 
-
-    optim::polynomialOptim polynomial_instance(segment, order, derivative, times);
-    polynomial_instance.setInitialBoundaryCondition(initial_point_pos, initial_point_vel, initial_point_acc);
-    polynomial_instance.setFinalBoundaryCondition(final_point_pos, final_point_vel, final_point_acc);
-    polynomial_instance.setVelocityConstraints(velocity_constraint);
+    std::shared_ptr<optim::polynomialOptim> polynomial_instance = std::make_shared<optim::polynomialOptim>(segment, order, derivative, times);
+    polynomial_instance->setInitialBoundaryCondition(initial_point_pos, initial_point_vel, initial_point_acc);
+    polynomial_instance->setFinalBoundaryCondition(final_point_pos, final_point_vel, final_point_acc);
+    polynomial_instance->setVelocityConstraints(velocity_constraint);
 
     std::shared_ptr<optim::obstacleMap> obstacleMap = std::make_shared<optim::obstacleMap>();
     obstacleMap->insertPointCloud();
@@ -104,7 +103,7 @@ int main(int argc, char** argv) {
     pathplan_msgs::VoxelMap map = obstacleMap->visualizeMap(0.6);
     map.header.frame_id = "world";
 
-    polynomial_instance.optimize();
+    auto optimal_solution = polynomial_instance->optimize();
 
     ros::init(argc, argv, "optim_test");
     ros::NodeHandle nh;

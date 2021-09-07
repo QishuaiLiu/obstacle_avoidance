@@ -23,11 +23,11 @@ namespace optim {
                                        Eigen::Vector3d& final_accelerate);
         void setVelocityConstraints(const Eigen::Vector3d& velocity_constraints);
 
-        void optimize();
+        std::vector<double> optimize();
 
         void totalEqualConstraint(unsigned m, double *result, unsigned n, const double* x, double* grad);
 
-
+        Eigen::Vector3d evaluate(double t, const std::vector<double> &x, int derivative);
 
     private:
         static double costWarp(const std::vector<double>&x, std::vector<double>& grad, void *data) {
@@ -41,8 +41,6 @@ namespace optim {
         double smooth_objective(const std::vector<double>&x, std::vector<double>& grad);
 
         void setQuadraticCoeff();
-
-        Eigen::Vector3d evaluate(double t, const std::vector<double> &x, int derivative);
 
         void getCoeffWithTime(Eigen::VectorXd& coeff_with_time, int derivative, double t);
 

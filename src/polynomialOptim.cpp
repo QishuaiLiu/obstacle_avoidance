@@ -49,7 +49,7 @@ namespace optim {
         optimizer_->add_equality_mconstraint(equalConstraintWarp, this, tol_constraint);
     }
 
-    void polynomialOptim::optimize() {
+    std::vector<double> polynomialOptim::optimize() {
 
         std::vector<double> x(3 * dimension_);
         for (int i = 0; i < x.size(); ++i) {
@@ -58,6 +58,7 @@ namespace optim {
         double minf;
         nlopt::result result = optimizer_->optimize(x, minf);
         std::cout << "result is: " << result << " minf: " << minf << std::endl;
+        return x;
     }
 
     double polynomialOptim::smooth_objective(const std::vector<double>&x, std::vector<double>& grad) {
@@ -88,15 +89,6 @@ namespace optim {
             }
         }
 
-
-        std::cout << "after gradient is: " << std::endl;
-        std::cout << "===============================================" << std::endl;
-        for (int i = 0; i < grad.size(); ++i) {
-            if (i % (dimension_) == 0)
-                std::cout << std::endl;
-            std::cout << grad[i] << " ";
-        }
-        std::cout << std::endl;
 
         std::cout << "time is: " << num++ << " res is: " << res << " size: " <<  grad.size()<< std::endl;
         return res;
