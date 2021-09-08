@@ -12,16 +12,17 @@ pre_traj_x(1:3,:)= begin_x.y(1:3,:);
 pre_traj_x(4,:) = -begin_x.y(6,:);
 pre_traj_y(1:3, :) = begin_y.y(1:3, :);
 pre_traj_y(4, :) = -begin_y.y(6, :);
-% figure
-% plot(begin_time_x, pre_traj_x(1,:), 'k-');xlabel('t')
-% hold on
-% plot(begin_time_x, pre_traj_x(2,:)); 
-% hold on
-% plot(begin_time_x, pre_traj_x(3,:)); 
-% plot(begin_time_x, pre_traj_x(4,:));
+figure
+plot(begin_time_x, pre_traj_x(1,:), 'k-');xlabel('t')
+hold on
+plot(begin_time_x, pre_traj_x(2,:)); 
+hold on
+plot(begin_time_x, pre_traj_x(3,:)); 
+plot(begin_time_x, pre_traj_x(4,:));
 
 t_f = 6;
-new_time = 0:0.1:t_f;
+step = 0.01
+new_time = 0:step:t_f;
 traj_spline_x(1,:) = spline(begin_time_x, pre_traj_x(1,:),new_time);       %% fitting the guidance begin in x
 traj_spline_x(2,:) = spline(begin_time_x, pre_traj_x(2,:),new_time);
 traj_spline_x(3,:) = spline(begin_time_x, pre_traj_x(3,:),new_time);
@@ -53,7 +54,7 @@ final_traj_y(4, :) = [traj_spline_y(4, :) jerk_y(2:end)];
 
 circular_motion_end_time = 37.9;
 
-append_time = t_f + 0.1:0.1:t_f + circular_motion_end_time - 0.1;    %% append time is the time in circular motion
+append_time = t_f + step:step:t_f + circular_motion_end_time - step;    %% append time is the time in circular motion
 whole_time = [new_time append_time];             %% guidance time + circular motion time + 
                                                  %       possible later tailing time
 % figure
