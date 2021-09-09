@@ -122,7 +122,8 @@ save("outdoor", 'final_traj_x', 'final_traj_y', 'whole_time')
 function [sol_x, sol_y, end_sol_x, end_sol_y] = path
 
 tf = 6;
-ti = linspace(0, tf, 61);
+step = 0.01;
+ti = linspace(0, tf, tf / step + 1);
 solinit = bvpinit(ti, [0 0 0 0.5 0.5 0.5]);
 
 opts= bvpset('Stats', 'on', 'RelTol', 1e-6);
