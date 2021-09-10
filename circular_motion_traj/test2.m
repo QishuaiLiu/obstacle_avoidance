@@ -93,15 +93,15 @@ final_traj_y = [final_traj_y tail_traj_spline_y(:, 2:end)];
 
 tail_time = new_time + t_f + circular_motion_end_time;
 whole_time = [whole_time tail_time(1:end - 1)];                                        %% concantenation the time
-% figure
-% plot(end_time_x, tail_traj_x(1, :));
-% hold on
-% plot(end_time_x, tail_traj_x(2, :));
-% hold on
-% plot(end_time_x, tail_traj_x(3, :));
-% hold on
-% plot(end_time_x, tail_traj_x(4, :));
-% legend('pos_tail', 'vel_tail', 'acc_tail', 'jerk_tail');
+figure
+plot(end_time_x, tail_traj_x(1, :));
+hold on
+plot(end_time_x, tail_traj_x(2, :));
+hold on
+plot(end_time_x, tail_traj_x(3, :));
+hold on
+plot(end_time_x, tail_traj_x(4, :));
+legend('pos_tail', 'vel_tail', 'acc_tail', 'jerk_tail');
 figure
 plot(whole_time, final_traj_x(1, :))
 hold on
