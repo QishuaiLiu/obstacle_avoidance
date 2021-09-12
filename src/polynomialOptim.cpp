@@ -202,8 +202,6 @@ namespace optim {
             }
         }
 
-
-
         std::cout << "result size: " << m << " constraint grad size: " << n << std::endl;
 
     }
